@@ -1,0 +1,19 @@
+{
+  "name": "Eng Flash · 英文閃電練習",
+  "short_name": "Eng Flash",
+  "description": "AI 英文口說教練 · CEFR 自適應難度 · 可點查單字",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "lang": "zh-Hant",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

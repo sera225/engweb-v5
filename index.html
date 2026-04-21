@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Eng Flash · 英文閃電練習</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+  <link rel="apple-touch-icon" href="/icon.svg" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen select-none">
+
+  <!-- 頂部 -->
+  <header class="sticky top-0 z-10 bg-slate-900/90 backdrop-blur border-b border-slate-800">
+    <div class="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">⚡</span>
+        <h1 class="text-lg font-bold tracking-tight">Eng Flash</h1>
+      </div>
+      <div class="flex items-center gap-4 text-sm">
+        <button id="nav-stats" class="text-slate-400 hover:text-white transition">
+          📊 <span id="streak-badge">0</span> 天
+        </button>
+        <button id="nav-settings" class="text-slate-400 hover:text-white transition">⚙️</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-lg mx-auto px-4 py-6 pb-24">
+
+    <!-- ============ 首頁 ============ -->
+    <section id="view-home" class="space-y-6">
+      <div class="text-center py-6">
+        <div class="text-6xl mb-3">🔥</div>
+        <div class="text-5xl font-bold" id="home-streak">0</div>
+        <div class="text-slate-400 mt-1">連續練習天數</div>
+        <div class="mt-4 inline-flex items-center gap-2 bg-slate-800 rounded-full px-4 py-1.5" id="home-level-badge"></div>
+      </div>
+
+      <div class="bg-slate-800 rounded-2xl p-5">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-sm text-slate-400">今天</span>
+          <span class="text-sm font-medium"><span id="home-today-count">0</span> / 10 題</span>
+        </div>
+        <div class="w-full bg-slate-700 rounded-full h-2">
+          <div id="home-progress-bar" class="bg-gradient-to-r from-amber-400 to-orange-500 h-2 rounded-full transition-all" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div>
+        <h2 class="text-sm font-medium text-slate-400 mb-3">選擇主題</h2>
+        <div class="grid grid-cols-2 gap-3" id="topic-grid"></div>
+      </div>
+
+      <div class="space-y-2">
+        <button data-action="start-mixed" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-slate-900 font-bold py-4 rounded-2xl text-lg shadow-lg active:scale-95 transition">
+          🎯 綜合練習 (當前難度隨機 10 題)
+        </button>
+        <div class="grid grid-cols-2 gap-2">
+          <button data-action="start-review" class="bg-slate-800 border border-slate-700 text-white font-medium py-3 rounded-2xl active:scale-95 transition flex items-center justify-center gap-2">
+            🔁 卡點 <span id="review-count" class="text-xs bg-slate-700 px-2 py-0.5 rounded-full">0</span>
+          </button>
+          <button data-action="open-vocab" class="bg-slate-800 border border-slate-700 text-white font-medium py-3 rounded-2xl active:scale-95 transition flex items-center justify-center gap-2">
+            📚 單字庫 <span id="home-vocab-count" class="text-xs bg-slate-700 px-2 py-0.5 rounded-full">0</span>
+          </button>
+        </div>
+        <button data-action="start-diagnostic" class="w-full bg-slate-800/50 border border-dashed border-slate-700 text-slate-400 font-medium py-2.5 rounded-2xl active:scale-95 transition text-sm">
+          📊 重新做程度測驗
+        </button>
+      </div>
+    </section>
+
+    <!-- ============ 練習頁 ============ -->
+    <section id="view-practice" class="hidden space-y-5">
+      <div class="flex items-center gap-3">
+        <button data-action="back-home" class="text-slate-400 hover:text-white text-xl">←</button>
+        <div class="flex-1 bg-slate-800 h-1.5 rounded-full overflow-hidden">
+          <div id="practice-progress" class="bg-amber-500 h-full transition-all" style="width: 0%"></div>
+        </div>
+        <span class="text-xs text-slate-400"><span id="practice-current">1</span>/<span id="practice-total">10</span></span>
+      </div>
+
+      <!-- 題目卡 (點擊可偷看答案) -->
+      <button id="question-card" class="w-full text-left bg-slate-800 rounded-2xl p-6 hover:bg-slate-800/70 active:scale-[0.99] transition group">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2 text-xs text-slate-400">
+            <span id="practice-topic-emoji">☕</span>
+            <span id="practice-context">—</span>
+          </div>
+          <div id="practice-level-tag"></div>
+        </div>
+        <div id="practice-zh" class="text-2xl font-medium leading-relaxed">—</div>
+        <div id="peek-hint" class="mt-3 text-xs text-slate-500 flex items-center gap-1 group-hover:text-amber-400 transition">
+          <span>👁️</span>
+          <span>點我偷看答案(會自動加入複習)</span>
+        </div>
+      </button>
+
+      <!-- 偷看答案展開區 (預設隱藏) -->
+      <div id="peek-zone" class="hidden bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-2xl p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="text-xs text-amber-400 font-medium">📖 參考答案(已加入卡點)</div>
+          <button id="btn-close-peek" class="text-slate-400 hover:text-white text-sm">✕ 收起</button>
+        </div>
+        <div id="peek-loading" class="text-center py-4 text-slate-400 text-sm">查詢中...</div>
+        <div id="peek-answers" class="hidden space-y-2"></div>
+      </div>
+
+      <!-- 錄音區 -->
+      <div id="record-zone" class="bg-slate-800/50 border-2 border-dashed border-slate-700 rounded-2xl p-6 text-center">
+        <button id="btn-record" class="w-20 h-20 rounded-full bg-gradient-to-br from-red-500 to-pink-600 text-white text-3xl shadow-xl active:scale-90 transition">
+          🎤
+        </button>
+        <div id="record-status" class="mt-3 text-sm text-slate-400">按一下開始錄音</div>
+        <!-- 你的錄音文字 (即時顯示) -->
+        <div class="mt-4 text-lg leading-relaxed english-text min-h-[2rem]" id="user-transcript"></div>
+      </div>
+
+      <!-- 我不會 / 跳過 -->
+      <div class="grid grid-cols-2 gap-3">
+        <button data-action="i-dont-know" class="bg-slate-800 text-amber-400 font-medium py-3 rounded-xl border border-slate-700 active:scale-95 transition">
+          🆘 這句我不會
+        </button>
+        <button data-action="skip" class="bg-slate-800 text-slate-400 font-medium py-3 rounded-xl border border-slate-700 active:scale-95 transition">
+          跳過 →
+        </button>
+      </div>
+
+      <!-- ============ 回饋區(v3 新版) ============ -->
+      <div id="feedback-zone" class="hidden space-y-4">
+
+        <!-- 分數 -->
+        <div class="bg-slate-800 rounded-2xl p-4 text-center">
+          <div class="flex items-center justify-center gap-4">
+            <div>
+              <div class="text-xs text-slate-400 mb-1">流暢度</div>
+              <div class="text-5xl font-bold" id="feedback-score">—</div>
+              <div class="text-xs text-slate-500">/ 10</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 最佳 native 說法 (重點區塊) -->
+        <div class="bg-gradient-to-br from-emerald-500/10 to-blue-500/10 border border-emerald-500/30 rounded-2xl p-4">
+          <div class="text-xs text-emerald-400 font-medium mb-2">✨ 最自然的說法</div>
+          <div id="feedback-best"></div>
+        </div>
+
+        <!-- 台灣人常見錯誤 -->
+        <div id="feedback-mistake-box" class="hidden bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
+          <div class="text-xs text-amber-400 font-medium mb-1">💡 小提醒</div>
+          <div id="feedback-mistake" class="text-sm text-amber-100"></div>
+        </div>
+
+        <!-- 其他說法(可展開) -->
+        <div>
+          <button id="btn-toggle-alt" class="w-full flex items-center justify-between bg-slate-800 rounded-xl p-3 text-sm active:scale-[0.99] transition">
+            <span class="text-slate-300">看其他說法</span>
+            <span id="toggle-alt-btn" class="transition-transform text-slate-400">▼</span>
+          </button>
+          <div id="feedback-alternatives-box" class="hidden mt-2">
+            <div id="feedback-alternatives" class="space-y-2"></div>
+          </div>
+        </div>
+
+        <div id="feedback-encouragement" class="text-center text-slate-300 text-sm italic"></div>
+
+        <!-- 下一題 -->
+        <button data-action="next" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-slate-900 font-bold py-4 rounded-2xl text-lg active:scale-95 transition">
+          下一題 →
+        </button>
+      </div>
+    </section>
+
+    <!-- ============ 完成頁 ============ -->
+    <section id="view-complete" class="hidden space-y-6 text-center py-12">
+      <div class="text-8xl">🎉</div>
+      <h2 class="text-3xl font-bold">今天完成!</h2>
+      <div class="bg-slate-800 rounded-2xl p-5 space-y-3">
+        <div class="flex justify-between"><span class="text-slate-400">練習題數</span><span class="font-bold" id="complete-count">—</span></div>
+        <div class="flex justify-between"><span class="text-slate-400">平均分數</span><span class="font-bold" id="complete-avg">—</span></div>
+        <div class="flex justify-between"><span class="text-slate-400">新增卡點</span><span class="font-bold" id="complete-stucks">—</span></div>
+        <div class="flex justify-between"><span class="text-slate-400">連續天數</span><span class="font-bold text-orange-400"><span id="complete-streak">—</span> 🔥</span></div>
+        <div class="flex justify-between"><span class="text-slate-400">當前難度</span><span class="font-bold" id="complete-level">—</span></div>
+      </div>
+      <button data-action="back-home" class="w-full bg-slate-800 border border-slate-700 text-white font-medium py-3 rounded-2xl active:scale-95 transition">回首頁</button>
+    </section>
+
+    <!-- ============ 統計頁 ============ -->
+    <section id="view-stats" class="hidden space-y-5">
+      <div class="flex items-center gap-3">
+        <button data-action="back-home" class="text-slate-400 hover:text-white text-xl">←</button>
+        <h2 class="text-xl font-bold">我的進度</h2>
+      </div>
+      <div class="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-2xl p-4">
+        <div class="text-xs text-slate-400">當前難度</div>
+        <div class="text-2xl font-bold mt-1" id="stats-level">—</div>
+        <div class="text-xs text-slate-500 mt-1">系統會依表現自動調整</div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-slate-800 rounded-2xl p-4">
+          <div class="text-xs text-slate-400">連續天數</div>
+          <div class="text-3xl font-bold text-orange-400 mt-1"><span id="stats-streak">0</span> 🔥</div>
+        </div>
+        <div class="bg-slate-800 rounded-2xl p-4">
+          <div class="text-xs text-slate-400">總練習</div>
+          <div class="text-3xl font-bold mt-1"><span id="stats-total">0</span></div>
+        </div>
+        <div class="bg-slate-800 rounded-2xl p-4">
+          <div class="text-xs text-slate-400">平均分數</div>
+          <div class="text-3xl font-bold mt-1"><span id="stats-avg">—</span></div>
+        </div>
+        <div class="bg-slate-800 rounded-2xl p-4">
+          <div class="text-xs text-slate-400">卡點數</div>
+          <div class="text-3xl font-bold mt-1"><span id="stats-stucks">0</span></div>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-sm font-medium text-slate-400 mb-3">🆘 你的卡點庫</h3>
+        <div id="stucks-list" class="space-y-2"></div>
+      </div>
+    </section>
+
+    <!-- ============ 單字庫頁 ============ -->
+    <section id="view-vocab" class="hidden space-y-5">
+      <div class="flex items-center gap-3">
+        <button data-action="back-home" class="text-slate-400 hover:text-white text-xl">←</button>
+        <h2 class="text-xl font-bold">📚 單字庫</h2>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-slate-800 rounded-2xl p-4">
+          <div class="text-xs text-slate-400">已收藏</div>
+          <div class="text-3xl font-bold mt-1"><span id="vocab-total">0</span></div>
+        </div>
+        <div class="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4">
+          <div class="text-xs text-amber-400">待複習</div>
+          <div class="text-3xl font-bold text-amber-400 mt-1"><span id="vocab-due">0</span></div>
+        </div>
+      </div>
+
+      <!-- 兩個主要動作 -->
+      <div class="grid grid-cols-2 gap-2">
+        <button data-action="start-review-vocab" class="bg-gradient-to-r from-amber-500 to-orange-500 text-slate-900 font-bold py-3 rounded-2xl active:scale-95 transition text-sm">
+          🎯 開始複習
+        </button>
+        <button data-action="add-vocab" class="bg-slate-800 border border-slate-700 text-white font-medium py-3 rounded-2xl active:scale-95 transition text-sm">
+          ➕ 新增單字
+        </button>
+      </div>
+
+      <div id="vocab-list" class="space-y-2"></div>
+    </section>
+
+    <!-- ============ 單字複習頁 (v0.5 新增 - 閃卡模式) ============ -->
+    <section id="view-flashcard" class="hidden space-y-5">
+      <div class="flex items-center gap-3">
+        <button data-action="back-vocab" class="text-slate-400 hover:text-white text-xl">←</button>
+        <div class="flex-1 bg-slate-800 h-1.5 rounded-full overflow-hidden">
+          <div id="flash-progress" class="bg-amber-500 h-full transition-all" style="width: 0%"></div>
+        </div>
+        <span class="text-xs text-slate-400"><span id="flash-current">1</span>/<span id="flash-total">10</span></span>
+      </div>
+
+      <!-- 卡片 -->
+      <div id="flashcard" class="min-h-[280px] bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-8 flex flex-col items-center justify-center text-center border border-slate-700 active:scale-[0.99] transition cursor-pointer">
+        <!-- 初始:只看英文面 -->
+        <div id="flash-front" class="space-y-3">
+          <div id="flash-word" class="text-4xl font-bold">—</div>
+          <div id="flash-phonetic" class="text-sm text-slate-400">—</div>
+          <button class="text-3xl mt-2" data-speak-flash>🔊</button>
+          <div class="text-xs text-slate-500 mt-4">👆 輕觸看答案</div>
+        </div>
+        <!-- 翻面:看中文+例句 -->
+        <div id="flash-back" class="hidden space-y-4 w-full">
+          <div class="flex items-center justify-center gap-2">
+            <div id="flash-word-back" class="text-3xl font-bold">—</div>
+            <button class="text-2xl" data-speak-flash>🔊</button>
+          </div>
+          <div id="flash-phonetic-back" class="text-xs text-slate-400">—</div>
+          <div id="flash-translation" class="text-lg text-amber-300 font-medium">—</div>
+          <div id="flash-examples" class="space-y-2 text-left text-sm"></div>
+        </div>
+      </div>
+
+      <!-- 自評按鈕 (翻面後才出現) -->
+      <div id="flash-rate-buttons" class="hidden grid grid-cols-2 gap-3">
+        <button data-action="flash-fail" class="bg-red-500/80 text-white font-bold py-4 rounded-2xl active:scale-95 transition text-lg">
+          ❌ 不會
+        </button>
+        <button data-action="flash-pass" class="bg-emerald-500/80 text-white font-bold py-4 rounded-2xl active:scale-95 transition text-lg">
+          ✅ 會了
+        </button>
+      </div>
+
+      <!-- 提示 -->
+      <div id="flash-rate-hint" class="hidden text-center text-xs text-slate-500">
+        不會 → 明天再複習 · 會了 → 間隔倍增
+      </div>
+    </section>
+
+    <!-- ============ 新增單字頁 (v0.5 新增) ============ -->
+    <section id="view-add-vocab" class="hidden space-y-5">
+      <div class="flex items-center gap-3">
+        <button data-action="back-vocab" class="text-slate-400 hover:text-white text-xl">←</button>
+        <h2 class="text-xl font-bold">➕ 新增單字</h2>
+      </div>
+
+      <div class="bg-slate-800 rounded-2xl p-5 space-y-3">
+        <label class="text-sm text-slate-400">輸入英文單字或片語</label>
+        <input
+          id="add-vocab-input"
+          type="text"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          class="w-full bg-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
+          placeholder="例如: resilient, catch up, give in..."
+        />
+        <button data-action="submit-add-vocab" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-slate-900 font-bold py-3 rounded-xl active:scale-95 transition">
+          🔍 查詢並預覽
+        </button>
+      </div>
+
+      <!-- 預覽區 -->
+      <div id="add-vocab-preview" class="hidden bg-slate-800 rounded-2xl p-5 space-y-4">
+        <div id="add-vocab-preview-body"></div>
+        <button data-action="confirm-add-vocab" class="w-full bg-emerald-500 text-slate-900 font-bold py-3 rounded-xl active:scale-95 transition">
+          ⭐ 確認加入單字庫
+        </button>
+      </div>
+
+      <div class="text-xs text-slate-500 text-center">
+        系統會用 AI 自動生成中文說明 + 2 個例句
+      </div>
+    </section>
+
+    <!-- ============ 設定頁 ============ -->
+    <section id="view-settings" class="hidden space-y-5">
+      <div class="flex items-center gap-3">
+        <button data-action="back-home" class="text-slate-400 hover:text-white text-xl">←</button>
+        <h2 class="text-xl font-bold">設定</h2>
+      </div>
+      <div class="bg-slate-800 rounded-2xl p-5 space-y-4">
+        <div>
+          <label class="text-sm text-slate-400">難度等級</label>
+          <select id="setting-level" class="w-full mt-1 bg-slate-700 rounded-lg px-3 py-2">
+            <option value="A2">🌱 A2 初級 · 日常生存英文</option>
+            <option value="B1">🔥 B1 中級 · 流暢日常表達</option>
+            <option value="B2">💎 B2 進階 · 複雜情境溝通</option>
+          </select>
+          <div class="text-xs text-slate-500 mt-1">系統會依表現自動調整,也可手動覆蓋</div>
+        </div>
+        <div>
+          <label class="text-sm text-slate-400">每日目標</label>
+          <select id="setting-daily-goal" class="w-full mt-1 bg-slate-700 rounded-lg px-3 py-2">
+            <option value="5">5 題 (輕鬆)</option>
+            <option value="10" selected>10 題 (推薦)</option>
+            <option value="20">20 題 (挑戰)</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-sm text-slate-400">語音語言</label>
+          <select id="setting-voice" class="w-full mt-1 bg-slate-700 rounded-lg px-3 py-2">
+            <option value="en-US">美式英文</option>
+            <option value="en-GB">英式英文</option>
+            <option value="en-AU">澳洲英文</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-sm text-slate-400">發音語速</label>
+          <select id="setting-tts-rate" class="w-full mt-1 bg-slate-700 rounded-lg px-3 py-2">
+            <option value="0.8">慢 (0.8x)</option>
+            <option value="0.95" selected>正常 (0.95x)</option>
+            <option value="1.1">快 (1.1x)</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-sm text-slate-400">API 來源</label>
+          <div class="text-sm mt-1">Gemini 2.0 Flash (免費版每天 1500 次)</div>
+        </div>
+      </div>
+      <button data-action="reset" class="w-full bg-red-900/50 text-red-300 font-medium py-3 rounded-2xl border border-red-800 active:scale-95 transition">
+        清除所有資料
+      </button>
+      <div class="text-center text-xs text-slate-500">
+        Eng Flash v0.5 · 你卡住的地方,我們記得
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 單字 popup -->
+  <div id="word-popup" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+    <div class="bg-slate-800 rounded-2xl p-5 max-w-md w-full shadow-2xl relative max-h-[80vh] overflow-y-auto" onclick="event.stopPropagation()">
+      <button data-action="close-popup" class="absolute top-3 right-3 text-slate-400 hover:text-white text-xl">✕</button>
+      <div id="word-popup-body"></div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-700 text-white px-4 py-2 rounded-full text-sm shadow-lg hidden z-50 max-w-[90%] text-center"></div>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
