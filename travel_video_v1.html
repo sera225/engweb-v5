@@ -2,10 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <link rel="apple-touch-icon" href="icon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Travel APP</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -26,11 +23,6 @@
       --yellow: #f9c74f;
       --purple: #a56eff;
       --shadow: 0 18px 42px rgba(0,0,0,.38);
-      --app-height: 100vh;
-    }
-
-    @supports (height: 100dvh) {
-      :root { --app-height: 100dvh; }
     }
 
     html, body {
@@ -40,19 +32,16 @@
       background: #050812;
       color: var(--text);
       font-family: "Microsoft JhengHei", "PingFang TC", system-ui, sans-serif;
-      -webkit-text-size-adjust: 100%;
     }
 
     body {
       display: flex;
       justify-content: center;
-      min-height: var(--app-height);
     }
 
     .app {
-      width: 100%;
-      max-width: 430px;
-      min-height: var(--app-height);
+      width: min(100%, 430px);
+      min-height: 100vh;
       background: var(--bg);
       position: relative;
       overflow: hidden;
@@ -207,7 +196,7 @@
 
     .stage {
       position: relative;
-      height: calc(var(--app-height) - 106px);
+      height: calc(100vh - 106px);
       min-height: 560px;
       background: #e8efe9;
     }
@@ -1189,7 +1178,7 @@
 
     .utility-page {
       display: none;
-      height: calc(var(--app-height) - 106px);
+      height: calc(100vh - 106px);
       min-height: 560px;
       padding: 18px 14px 104px;
       background:
@@ -1203,14 +1192,14 @@
     .app[data-tab="prep"],
     .app[data-tab="ledger"],
     .app[data-tab="booking"] {
-      height: var(--app-height);
-      max-height: var(--app-height);
+      height: 100vh;
+      max-height: 100vh;
     }
 
     .app[data-tab="prep"] [data-page="prep"],
     .app[data-tab="ledger"] [data-page="ledger"],
     .app[data-tab="booking"] [data-page="booking"] {
-      height: calc(var(--app-height) - 106px);
+      height: calc(100vh - 106px);
       min-height: 0;
       overflow-y: auto;
       overscroll-behavior: contain;
